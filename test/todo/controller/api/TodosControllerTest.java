@@ -90,4 +90,64 @@ public class TodosControllerTest extends ControllerTestCase {
         tester.start("/api/todos");
         assertThat(tester.response.getStatus(), is(401));
     }
+    
+    @Test
+    public void get_未完了TODO一覧() throws Exception{
+        TestUtil.login("user01", "test@example.com");
+        tester.request.setMethod("GET");
+        tester.param("finished", "false");
+        tester.start("/api/todos");
+        
+        assertThat(tester.response.getStatus(), is(200));
+        
+        Todo[] todos = m.jsonToModels(tester.response.getOutputAsString());
+        assertThat(todos.length, is(2));
+        assertThat(todos[0].getUserId(), is("user01"));
+        assertThat(todos[0].getBody(), is("todo2")); 
+        assertThat(todos[0].isFinished(), is(false));
+        assertThat(todos[1].getUserId(), is("user01"));
+        assertThat(todos[1].getBody(), is("todo1")); 
+        assertThat(todos[1].isFinished(), is(false));
+    }
+    
+    @Test
+    public void get_完了済TODO一覧() throws Exception{
+        TestUtil.login("user01", "test@example.com");
+        tester.request.setMethod("GET");
+        tester.param("finished", "true");
+        tester.start("/api/todos");
+        
+        assertThat(tester.response.getStatus(), is(200));
+        
+        Todo[] todos = m.jsonToModels(tester.response.getOutputAsString());
+        assertThat(todos.length, is(2));
+        assertThat(todos[0].getUserId(), is("user01"));
+        assertThat(todos[0].getBody(), is("todo4")); 
+        assertThat(todos[0].isFinished(), is(true));
+        assertThat(todos[1].getUserId(), is("user01"));
+        assertThat(todos[1].getBody(), is("todo3")); 
+        assertThat(todos[1].isFinished(), is(true));
+    }
+    
+   @Test
+    public void get_finishedパラメータがない() throws Exception{
+        TestUtil.login("user01", "test@example.com");
+        tester.request.setMethod("GET");
+        tester.start("/api/todos");
+        
+        assertThat(tester.response.getStatus(), is(400));
+   }
+   
+  @Test
+    public void get_ログインしていない() throws Exception{
+        
+        tester.request.setMethod("GET");
+        tester.param("finished", "false");
+        tester.start("/api/todos");
+        
+        assertThat(tester.response.getStatus(), is(401));
+   }
+       
+        
+    
 }
