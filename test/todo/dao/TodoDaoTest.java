@@ -1,22 +1,25 @@
 package todo.dao;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.util.Date;
 import java.util.List;
 
-import org.slim3.datastore.Datastore;
-import org.slim3.tester.AppEngineTestCase;
-import org.apache.tools.ant.taskdefs.condition.IsTrue;
 import org.junit.Before;
 import org.junit.Test;
+import org.slim3.datastore.Datastore;
+import org.slim3.tester.AppEngineTestCase;
 
+import rootPackage.NoSuchTodoException;
 import todo.model.Todo;
 import todo.test.TestUtil;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
-
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import com.sun.istack.internal.NotNull;
 
 public class TodoDaoTest extends AppEngineTestCase {
 
@@ -44,7 +47,9 @@ public class TodoDaoTest extends AppEngineTestCase {
         othersKey = Datastore.put(TestUtil.newTodo("user02", "todo5", false));
         Datastore.put(TestUtil.newTodo("user02", "todo6", true));
     }
-    
+//
+//  create
+//
     @Test
     public void create(){
         int before = tester.count(Todo.class);
@@ -69,12 +74,79 @@ public class TodoDaoTest extends AppEngineTestCase {
     public void create_bodyがnull(){
         dao.create(null);
     }
-    
- //   @Test
- //   public void update() throws NoSuchTodoException{
+//
+//  update
+//   
+    @Test
+    public void update() throws NoSuchTodoException{
+        Todo todo = dao.update(key, true);
+        assertThat(todo, is(notNullValue()));
+        assertThat(todo.getKey(), is(key));
+        assertThat(todo.isFinished(), is(true));
+        assertThat(todo.getFinishedAt(), is(notNullValue()));
         
- //   }
+        todo = Datastore.get(Todo.class, key);
+        assertThat(todo.isFinished(), is(true));
+        assertThat(todo.getFinishedAt(), is(notNullValue()));
+        
+        todo= dao.update(key,false);
+        assertThat(todo, is(notNullValue()));
+        assertThat(todo.getKey(), is(key));
+        assertThat(todo.isFinished(), is(false));
+        assertThat(todo.getFinishedAt(), is(nullValue()));
+        
+        todo = Datastore.get(Todo.class, key);
+        assertThat(todo.isFinished(), is(false));
+        assertThat(todo.getFinishedAt(), is(nullValue()));
+    }
 
+    @Test(expected=NoSuchTodoException.class)
+    public void update_指定したキーのTODOが存在しない() throws NoSuchTodoException{
+        dao.update(Datastore.createKey(Todo.class, Long.MAX_VALUE), true);
+    }
+    
+    @Test(expected=NoSuchTodoException.class)
+    public void update_別ユーザが登録したTODOのキーを指定() throws NoSuchTodoException{
+        dao.update(othersKey, true);
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void update_keyがnull() throws NoSuchTodoException{
+        dao.update(null, true);
+    }
+//
+//  delete
+//    
+    @Test
+    public void dalete() throws NoSuchTodoException{
+        
+        int before = tester.count(Todo.class);
+        
+        dao.delete(key);
+        
+        assertThat(tester.count(Todo.class), is(before -1));
+        
+        assertThat(Datastore.getOrNull(key), is(nullValue()));
+ 
+    }
+
+    @Test(expected=NoSuchTodoException.class)
+    public void dalete_指定したキーのTODOが存在しない() throws NoSuchTodoException{
+        dao.delete(Datastore.createKey(Todo.class, Long.MAX_VALUE));
+    }
+    
+    @Test(expected=NoSuchTodoException.class)
+    public void delete_別ユーザが登録したTODOのキーを指定() throws NoSuchTodoException{
+        dao.delete(othersKey);
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void delete_keyがnull() throws NoSuchTodoException{
+        dao.delete((Key)null);
+    }   
+//
+//  find
+//   
     @Test
     public void find(){
         List<Todo> todos = dao.find(false);

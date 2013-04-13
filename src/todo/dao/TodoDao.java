@@ -1,11 +1,15 @@
 package todo.dao;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 
 import org.slim3.datastore.DaoBase;
 
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
 
+import rootPackage.NoSuchTodoException;
 import todo.meta.TodoMeta;
 import todo.model.Todo;
 
@@ -27,6 +31,27 @@ public class TodoDao extends DaoBase<Todo>{
         put(todo);
         return todo;
     }
+    
+    public Todo update(Key key, boolean finished){
+        Todo todo = getOrNull(key);
+        if(todo == null || !todo.getUserId().equals(user.getUserId())){
+            throw new NoSuchTodoException(key.getId());
+        }
+        todo.setFinished(finished);
+        todo.setFinishedAt(finished ? new Date() : null);
+        put(todo);
+        
+        return todo;
+    }
+    
+    public void delete(Key key){
+        Todo todo = getOrNull(key);
+        if(todo == null || !todo.getUserId().equals(user.getUserId())){
+            throw new NoSuchTodoException(key.getId());
+        }
+        super.delete(key);
+    }
+    
     
     public List<Todo> find(boolean finished){
         TodoMeta m = TodoMeta.get();

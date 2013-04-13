@@ -3,7 +3,6 @@ package todo.controller.api;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,13 +11,15 @@ import org.slim3.controller.Controller;
 import org.slim3.controller.Navigation;
 import org.slim3.controller.validator.Validators;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-
 import todo.dao.TodoDao;
 import todo.meta.TodoMeta;
 import todo.model.Todo;
+
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 
 
@@ -66,10 +67,10 @@ public class TodosController extends Controller {
             return get();
         }else if(isPost()){
             return post();
-//        }else if(isPut()){
-//            return put();
-//        }else if (isDelete()){
-//            return delete();
+        }else if(isPut()){
+            return put();
+        }else if (isDelete()){
+            return delete();
         }else {
             response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return null;
@@ -103,4 +104,36 @@ public class TodosController extends Controller {
         Todo todo = dao.create(body);
         return sendJson(m.modelToJson(todo));
      }
+    
+    Navigation put() throws Exception{
+        
+        Validators v = new Validators(request);
+        v.add("key", v.required());
+        v.add("finished", v.required());
+        if (!v.validate()){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return null;
+        }
+        
+        Key key = KeyFactory.stringToKey(asString("key"));
+        boolean finished = asBoolean("finished");
+        Todo todo = dao.update(key, finished);
+        return sendJson(m.modelToJson(todo));
+    }
+   
+    Navigation delete() throws Exception{
+        
+        Validators v = new Validators(request);
+        v.add("key", v.required());
+        if (!v.validate()){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return null;
+        }
+        
+        Key key = KeyFactory.stringToKey(asString("key"));
+        dao.delete(key);
+        response.setStatus(HttpServletResponse.SC_OK);
+        return null;
+        
+    }   
 }
