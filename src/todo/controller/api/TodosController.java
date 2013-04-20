@@ -57,7 +57,7 @@ public class TodosController extends Controller {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
         if(user == null){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);    //401
             return null;
         }
         dao = new TodoDao(user);
@@ -72,7 +72,7 @@ public class TodosController extends Controller {
         }else if (isDelete()){
             return delete();
         }else {
-            response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+            response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);  //405
             return null;
         }
     }
@@ -82,7 +82,7 @@ public class TodosController extends Controller {
         Validators v = new Validators(request);
         v.add("finished", v.required());
         if (!v.validate()){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //400
             return null;
         }
         

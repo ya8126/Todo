@@ -1,4 +1,4 @@
-package rootPackage;
+package todo;
 
 @SuppressWarnings("serial")
 public class NoSuchTodoException extends RuntimeException {

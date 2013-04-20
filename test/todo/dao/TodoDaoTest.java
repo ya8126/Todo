@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.slim3.datastore.Datastore;
 import org.slim3.tester.AppEngineTestCase;
 
-import rootPackage.NoSuchTodoException;
+import todo.NoSuchTodoException;
 import todo.model.Todo;
 import todo.test.TestUtil;
 

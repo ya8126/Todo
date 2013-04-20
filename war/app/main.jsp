@@ -11,7 +11,7 @@
 <div id="container">
 	<h1>未完了TODO一覧</h1>
 	<p id="control">
-		<a href="/app/finishedlist">完了済TODO一覧</a>
+		<a href="/app/finishedList">完了済TODO一覧</a>
 	</p>
 	<p id="message"></p>
 	<form id="post_todo">
@@ -86,9 +86,9 @@
 		
 		$("#todos").on("click", "li a.delete_link", function(e){
 			var li= $(this).parent();
-			$ajax({
+			$.ajax({
 				type: "DELETE",
-				url: "/api/todos/" + $(this).data("todokey")
+				url: "/api/todos?key=" + $(this).data("todoKey")
 			}).done(function(res, status, xhr){
 				if (xhr.status !== 200){
 					showMessage("TODO削除に失敗しました", "error");
@@ -103,9 +103,9 @@
 		
 		$("#todos").on("click", "li a.finish_link", function(e){
 			var li= $(this).parent();
-			$ajax({
+			$.ajax({
 				type: "PUT",
-				url: "/api/todos/" + $(this).data("todokey"),
+				url: "/api/todos?key=" + $(this).data("todoKey"),
 				data: "finished=true",
 				dataType: "json"
 			}).done(function(res, status, xhr){

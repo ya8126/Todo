@@ -9,7 +9,7 @@ import org.slim3.datastore.DaoBase;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
 
-import rootPackage.NoSuchTodoException;
+import todo.NoSuchTodoException;
 import todo.meta.TodoMeta;
 import todo.model.Todo;
 

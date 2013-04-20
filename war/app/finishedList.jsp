@@ -47,8 +47,4 @@
 	});
 
 </script>
-</head>
-<body>
-<p>Hello app FinishedList !!!</p>
-</body>
 </html>
